@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Calculator with Equation Systems</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            color: #333333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border-bottom: 3px solid #ff6b6b;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: white;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .control-panel {
+            background: white;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .n-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .n-control label {
+            font-weight: 600;
+            color: #2a5298;
+            font-size: 1.05rem;
+        }
+
+        .n-control input {
+            width: 100px;
+            padding: 10px 14px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            color: #333333;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .n-control input:focus {
+            outline: none;
+            border-color: #1e3c72;
+            background: #f8f9fa;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #1e3c72;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-bottom: 3px solid #ff6b6b;
+        }
+
+        .btn:hover {
+            background: #2a5298;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #495057;
+            border-bottom: 3px solid #ffd166;
+        }
+
+        .btn-secondary:hover {
+            background: #6c757d;
+        }
+
+        .data-section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #1e3c72;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #1e3c72;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+
+        th {
+            background: #1e3c72;
+            color: white;
+            padding: 16px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 3px solid #ff6b6b;
+        }
+
+        th:last-child {
+            border-right: none;
+        }
+
+        td {
+            padding: 14px 10px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        td:last-child {
+            border-right: none;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #e9ecef;
+            border-left: 3px solid #1e3c72;
+        }
+
+        .sum-row {
+            background: #2a5298 !important;
+            color: white;
+            font-weight: bold;
+            font-size: 1.05rem;
+            border-top: 2px solid #ff6b6b;
+        }
+
+        .input-cell {
+            padding: 4px;
+        }
+
+        .input-cell input {
+            width: 100%;
+            padding: 10px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            color: #333333;
+            font-size: 0.95rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .input-cell input:focus {
+            outline: none;
+            border-color: #1e3c72;
+            background: #f8f9fa;
+            box-shadow: 0 0 0 2px rgba(30, 60, 114, 0.1);
+        }
+
+        .result-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.95rem;
+        }
+
+        .equation-systems {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1100px) {
+            .equation-systems {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .equation-panel {
+            background: white;
+            padding: 25px;
+            border: 1px solid #e0e0e0;
+            border-top: 3px solid #1e3c72;
+        }
+
+        .equation-display {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            border: 1px solid #e0e0e0;
+            font-size: 1rem;
+            color: #495057;
+        }
+
+        .coefficients {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .coef-item {
+            background: white;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid #1e3c72;
+            transition: all 0.2s ease;
+        }
+
+        .coef-item:hover {
+            background: #f8f9fa;
+            border-left-color: #ff6b6b;
+        }
+
+        .coef-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .coef-value {
+            font-weight: 700;
+            color: #1e3c72;
+            font-size: 1.05rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .graph-container {
+            height: 500px;
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-top: 3px solid #1e3c72;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #fff5f5;
+            padding: 14px;
+            margin-top: 15px;
+            display: none;
+            border-left: 4px solid #dc3545;
+            font-weight: 500;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 25px;
+            border-top: 1px solid #e0e0e0;
+            color: #6c757d;
+            font-size: 0.9rem;
+            background: #f8f9fa;
+        }
+
+        .function-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: #1e3c72;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            text-align: center;
+            border: 2px solid #1e3c72;
+            border-bottom: 3px solid #ff6b6b;
+        }
+
+        .error-comparison {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #495057;
+        }
+
+        .error-comparison-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        .error-value {
+            font-weight: 700;
+            color: #1e3c72;
+            font-family: 'Courier New', monospace;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .latex-equation {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            padding: 10px;
+            background: #f8f9fa;
+            margin: 10px 0;
+            border: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            table {
+                min-width: 1400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> Advanced Calculator with Equation Systems</h1>
+            <p class="subtitle">Input N pairs of (x, y) values to generate comprehensive calculations, solve linear and quadratic equation systems, and visualize results with interactive graphs.</p>
+        </header>
+
+        <div class="control-panel">
+            <div class="n-control">
+                <label for="n-value"><i class="fas fa-hashtag"></i> Number of data points (N):</label>
+                <input type="number" id="n-value" min="2" max="20" value="5">
+            </div>
+            
+            <div class="buttons">
+                <button id="update-table-btn" class="btn">
+                    <i class="fas fa-sync-alt"></i> Update Table
+                </button>
+                <button id="sample-linear-btn" class="btn btn-secondary">
+                    <i class="fas fa-chart-line"></i> Linear Sample Data
+                </button>
+                <button id="sample-quadratic-btn" class="btn btn-secondary">
+                    <i class="fas fa-chart-area"></i> Quadratic Sample Data
+                </button>
+                <button id="calculate-btn" class="btn">
+                    <i class="fas fa-calculator"></i> Calculate All
+                </button>
+            </div>
+        </div>
+
+        <div class="data-section">
+            <h2 class="section-title"><i class="fas fa-table"></i> Data Table</h2>
+            <div class="table-container">
+                <table id="results-table">
+                    <thead>
+                        <tr>
+                            <th>N</th>
+                            <th>x</th>
+                            <th>y</th>
+                            <th>xy</th>
+                            <th>x²</th>
+                            <th>x³</th>
+                            <th>x⁴</th>
+                            <th>yx²</th>
+                            <th>f₁(x)</th>
+                            <th>(y-f₁)²</th>
+                            <th>f₂(x)</th>
+                            <th>(y-f₂)²</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Table rows will be dynamically inserted here -->
+                    </tbody>
+                    <tfoot id="table-footer">
+                        <!-- Footer with sums will be dynamically inserted here -->
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div id="error-message" class="error"></div>
+        </div>
+
+        <div class="equation-systems">
+            <div class="equation-panel">
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> Linear Regression System (f₁)</h2>
+                
+                <div class="equation-display" id="linear-equation-display">
+                    Linear System: f₁(x) = a₁x + b₁
+                    <br><br>
+                    \[\begin{cases}
+                    \sum x^2 \cdot a_1 + \sum x \cdot b_1 = \sum xy \\
+                    \sum x \cdot a_1 + N \cdot b_1 = \sum y
+                    \end{cases}\]
+                </div>
+                
+                <div class="function-display" id="linear-function">
+                    f₁(x) = a₁x + b₁
+                </div>
+                
+                <div class="coefficients" id="linear-coefficients">
+                    <!-- Linear coefficients will be dynamically inserted here -->
+                </div>
+                
+                <div class="error-comparison">
+                    <div class="error-comparison-title">Sum of squared errors for f₁:</div>
+                    <div class="error-value" id="linear-error">S₁ = 0.000000</div>
+                </div>
+            </div>
+            
+            <div class="equation-panel">
+                <h2 class="section-title"><i class="fas fa-chart-area"></i> Quadratic Regression System (f₂)</h2>
+                
+                <div class="equation-display" id="quadratic-equation-display">
+                    Quadratic System: f₂(x) = a₂x² + b₂x + c₂
+                    <br><br>
+                    \[\begin{cases}
+                    \sum x^4 \cdot a_2 + \sum x^3 \cdot b_2 + \sum x^2 \cdot c_2 = \sum x^2y \\
+                    \sum x^3 \cdot a_2 + \sum x^2 \cdot b_2 + \sum x \cdot c_2 = \sum xy \\
+                    \sum x^2 \cdot a_2 + \sum x \cdot b_2 + N \cdot c_2 = \sum y
+                    \end{cases}\]
+                </div>
+                
+                <div class="function-display" id="quadratic-function">
+                    f₂(x) = a₂x² + b₂x + c₂
+                </div>
+                
+                <div class="coefficients" id="quadratic-coefficients">
+                    <!-- Quadratic coefficients will be dynamically inserted here -->
+                </div>
+                
+                <div class="error-comparison">
+                    <div class="error-comparison-title">Sum of squared errors for f₂:</div>
+                    <div class="error-value" id="quadratic-error">S₂ = 0.000000</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-section">
+            <h2 class="section-title"><i class="fas fa-chart-line"></i> Graph Visualization</h2>
+            
+            <div class="graph-container">
+                <canvas id="graph-canvas"></canvas>
+            </div>
+            
+            <div class="buttons" style="justify-content: center; margin-top: 20px;">
+                <button id="toggle-linear" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i> Toggle Linear Function
+                </button>
+                <button id="toggle-quadratic" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i> Toggle Quadratic Function
+                </button>
+                <button id="reset-zoom" class="btn">
+                    <i class="fas fa-search-minus"></i> Reset Zoom
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Advanced Calculator with Equation Systems | Designed for GitHub Pages | All calculations performed client-side</p>
+            <p>© 2023 | Solves linear (f₁) and quadratic (f₂) equation systems with graph visualization</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const nValueInput = document.getElementById('n-value');
+            const updateTableBtn = document.getElementById('update-table-btn');
+            const sampleLinearBtn = document.getElementById('sample-linear-btn');
+            const sampleQuadraticBtn = document.getElementById('sample-quadratic-btn');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const tableBody = document.getElementById('table-body');
+            const tableFooter = document.getElementById('table-footer');
+            const linearFunctionDisplay = document.getElementById('linear-function');
+            const quadraticFunctionDisplay = document.getElementById('quadratic-function');
+            const linearCoefficients = document.getElementById('linear-coefficients');
+            const quadraticCoefficients = document.getElementById('quadratic-coefficients');
+            const linearErrorDisplay = document.getElementById('linear-error');
+            const quadraticErrorDisplay = document.getElementById('quadratic-error');
+            const errorMessage = document.getElementById('error-message');
+            const graphCanvas = document.getElementById('graph-canvas');
+            const linearEquationDisplay = document.getElementById('linear-equation-display');
+            const quadraticEquationDisplay = document.getElementById('quadratic-equation-display');
+            
+            // Graph variables
+            let myChart = null;
+            let showLinear = true;
+            let showQuadratic = true;
+            let dataPoints = [];
+            let linearA = 0, linearB = 0, linearError = 0;
+            let quadraticA = 0, quadraticB = 0, quadraticC = 0, quadraticError = 0;
+            let sums = null;
+            
+            // Initialize
+            createTable();
+            loadSampleData('linear');
+            
+            // Event Listeners
+            updateTableBtn.addEventListener('click', () => {
+                createTable();
+                clearCalculations();
+            });
+            
+            sampleLinearBtn.addEventListener('click', () => {
+                loadSampleData('linear');
+                calculateAll();
+            });
+            
+            sampleQuadraticBtn.addEventListener('click', () => {
+                loadSampleData('quadratic');
+                calculateAll();
+            });
+            
+            calculateBtn.addEventListener('click', calculateAll);
+            
+            // Graph control buttons
+            document.getElementById('toggle-linear').addEventListener('click', () => {
+                showLinear = !showLinear;
+                updateGraph();
+            });
+            
+            document.getElementById('toggle-quadratic').addEventListener('click', () => {
+                showQuadratic = !showQuadratic;
+                updateGraph();
+            });
+            
+            document.getElementById('reset-zoom').addEventListener('click', resetGraphZoom);
+            
+            // Create table based on N value
+            function createTable() {
+                const n = parseInt(nValueInput.value);
+                if (n < 2 || n > 20) {
+                    showError('N must be between 2 and 20');
+                    return;
+                }
+                
+                tableBody.innerHTML = '';
+                
+                // Create rows
+                for (let i = 0; i < n; i++) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${i+1}</td>
+                        <td class="input-cell"><input type="number" class="x-input" step="any" value="0"></td>
+                        <td class="input-cell"><input type="number" class="y-input" step="any" value="0"></td>
+                        <td class="result-cell" id="xy-${i}">0.000000</td>
+                        <td class="result-cell" id="x2-${i}">0.000000</td>
+                        <td class="result-cell" id="x3-${i}">0.000000</td>
+                        <td class="result-cell" id="x4-${i}">0.000000</td>
+                        <td class="result-cell" id="yx2-${i}">0.000000</td>
+                        <td class="result-cell" id="f1-${i}">0.000000</td>
+                        <td class="result-cell" id="error1-${i}">0.000000</td>
+                        <td class="result-cell" id="f2-${i}">0.000000</td>
+                        <td class="result-cell" id="error2-${i}">0.000000</td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+                
+                // Create sum row
+                tableFooter.innerHTML = `
+                    <tr class="sum-row">
+                        <td>Σ</td>
+                        <td id="sum-x">0.000000</td>
+                        <td id="sum-y">0.000000</td>
+                        <td id="sum-xy">0.000000</td>
+                        <td id="sum-x2">0.000000</td>
+                        <td id="sum-x3">0.000000</td>
+                        <td id="sum-x4">0.000000</td>
+                        <td id="sum-yx2">0.000000</td>
+                        <td>—</td>
+                        <td id="sum-error1">0.000000</td>
+                        <td>—</td>
+                        <td id="sum-error2">0.000000</td>
+                    </tr>
+                `;
+                
+                // Add event listeners to inputs
+                document.querySelectorAll('.x-input, .y-input').forEach(input => {
+                    input.addEventListener('input', () => {
+                        updateBasicCalculations();
+                    });
+                });
+                
+                clearCalculations();
+            }
+            
+            function loadSampleData(type) {
+                const n = parseInt(nValueInput.value);
+                let sampleData = [];
+                
+                if (type === 'linear') {
+                    // Linear sample data: y ≈ 2x + 1 with some noise
+                    for (let i = 0; i < n; i++) {
+                        const x = i + 1;
+                        const noise = (Math.random() - 0.5) * 0.5;
+                        const y = 2 * x + 1 + noise;
+                        sampleData.push({x, y});
+                    }
+                } else {
+                    // Quadratic sample data: y ≈ 0.5x² + 0.5x + 1 with some noise
+                    for (let i = 0; i < n; i++) {
+                        const x = i + 1;
+                        const noise = (Math.random() - 0.5) * 2;
+                        const y = 0.5 * x * x + 0.5 * x + 1 + noise;
+                        sampleData.push({x, y});
+                    }
+                }
+                
+                // Fill the table with sample data
+                const xInputs = document.querySelectorAll('.x-input');
+                const yInputs = document.querySelectorAll('.y-input');
+                
+                for (let i = 0; i < Math.min(n, sampleData.length); i++) {
+                    xInputs[i].value = sampleData[i].x.toFixed(2);
+                    yInputs[i].value = sampleData[i].y.toFixed(2);
+                }
+                
+                updateBasicCalculations();
+            }
+            
+            function updateBasicCalculations() {
+                const n = parseInt(nValueInput.value);
+                const xInputs = document.querySelectorAll('.x-input');
+                const yInputs = document.querySelectorAll('.y-input');
+                
+                sums = {
+                    x: 0,
+                    y: 0,
+                    xy: 0,
+                    x2: 0,
+                    x3: 0,
+                    x4: 0,
+                    yx2: 0
+                };
+                
+                // Update basic calculations for each row
+                for (let i = 0; i < n; i++) {
+                    const x = parseFloat(xInputs[i].value) || 0;
+                    const y = parseFloat(yInputs[i].value) || 0;
+                    
+                    const xy = x * y;
+                    const x2 = x * x;
+                    const x3 = x2 * x;
+                    const x4 = x3 * x;
+                    const yx2 = y * x2;
+                    
+                    // Update row cells
+                    document.getElementById(`xy-${i}`).textContent = xy.toFixed(6);
+                    document.getElementById(`x2-${i}`).textContent = x2.toFixed(6);
+                    document.getElementById(`x3-${i}`).textContent = x3.toFixed(6);
+                    document.getElementById(`x4-${i}`).textContent = x4.toFixed(6);
+                    document.getElementById(`yx2-${i}`).textContent = yx2.toFixed(6);
+                    
+                    // Update sums
+                    sums.x += x;
+                    sums.y += y;
+                    sums.xy += xy;
+                    sums.x2 += x2;
+                    sums.x3 += x3;
+                    sums.x4 += x4;
+                    sums.yx2 += yx2;
+                }
+                
+                // Update sum row
+                document.getElementById('sum-x').textContent = sums.x.toFixed(6);
+                document.getElementById('sum-y').textContent = sums.y.toFixed(6);
+                document.getElementById('sum-xy').textContent = sums.xy.toFixed(6);
+                document.getElementById('sum-x2').textContent = sums.x2.toFixed(6);
+                document.getElementById('sum-x3').textContent = sums.x3.toFixed(6);
+                document.getElementById('sum-x4').textContent = sums.x4.toFixed(6);
+                document.getElementById('sum-yx2').textContent = sums.yx2.toFixed(6);
+            }
+            
+            function calculateAll() {
+                // Clear previous error
+                errorMessage.style.display = 'none';
+                
+                // Update basic calculations first
+                updateBasicCalculations();
+                
+                const n = parseInt(nValueInput.value);
+                const xInputs = document.querySelectorAll('.x-input');
+                const yInputs = document.querySelectorAll('.y-input');
+                
+                // Collect data points
+                dataPoints = [];
+                for (let i = 0; i < n; i++) {
+                    const x = parseFloat(xInputs[i].value) || 0;
+                    const y = parseFloat(yInputs[i].value) || 0;
+                    dataPoints.push({x, y});
+                }
+                
+                // Solve Linear Equation System
+                // System:
+                // (1) Σ(x²)·a + Σ(x)·b = Σ(x·y)
+                // (2) Σ(x)·a + N·b = Σ(y)
+                
+                const detLinear = sums.x2 * n - sums.x * sums.x;
+                
+                if (Math.abs(detLinear) < 1e-10) {
+                    showError("Linear system is singular (determinant is zero). Please check your data.");
+                    return;
+                }
+                
+                const detA = sums.xy * n - sums.x * sums.y;
+                const detB = sums.x2 * sums.y - sums.x * sums.xy;
+                
+                linearA = detA / detLinear;
+                linearB = detB / detLinear;
+                
+                // Update linear equation display
+                linearEquationDisplay.innerHTML = `
+                    Linear System: f₁(x) = a₁x + b₁
+                    <br><br>
+                    \\[\\begin{cases}
+                    ${sums.x2.toFixed(6)}a_1 + ${sums.x.toFixed(6)}b_1 = ${sums.xy.toFixed(6)} \\\\
+                    ${sums.x.toFixed(6)}a_1 + ${n}b_1 = ${sums.y.toFixed(6)}
+                    \\end{cases}\\]
+                `;
+                
+                // Display linear function
+                linearFunctionDisplay.innerHTML = `f₁(x) = ${linearA.toFixed(6)}x ${linearB >= 0 ? '+' : ''}${linearB.toFixed(6)}`;
+                
+                // Display linear coefficients
+                linearCoefficients.innerHTML = `
+                    <div class="coef-item">
+                        <span class="coef-label">a₁ (slope):</span>
+                        <span class="coef-value">${linearA.toFixed(6)}</span>
+                    </div>
+                    <div class="coef-item">
+                        <span class="coef-label">b₁ (intercept):</span>
+                        <span class="coef-value">${linearB.toFixed(6)}</span>
+                    </div>
+                    <div class="coef-item">
+                        <span class="coef-label">Determinant:</span>
+                        <span class="coef-value">${detLinear.toExponential(4)}</span>
+                    </div>
+                `;
+                
+                // Solve Quadratic Equation System
+                // System:
+                // (1) Σ(x⁴)·a + Σ(x³)·b + Σ(x²)·c = Σ(x²·y)
+                // (2) Σ(x³)·a + Σ(x²)·b + Σ(x)·c = Σ(x·y)
+                // (3) Σ(x²)·a + Σ(x)·b + N·c = Σ(y)
+                
+                // Using Cramer's rule for 3x3 system
+                const a11 = sums.x4, a12 = sums.x3, a13 = sums.x2;
+                const a21 = sums.x3, a22 = sums.x2, a23 = sums.x;
+                const a31 = sums.x2, a32 = sums.x, a33 = n;
+                
+                const detQuad = a11 * (a22 * a33 - a23 * a32) 
+                            - a12 * (a21 * a33 - a23 * a31) 
+                            + a13 * (a21 * a32 - a22 * a31);
+                
+                if (Math.abs(detQuad) < 1e-10) {
+                    showError("Quadratic system is singular (determinant is zero). Please check your data.");
+                    return;
+                }
+                
+                // For a (x² coefficient)
+                const detAQuad = sums.yx2 * (a22 * a33 - a23 * a32)
+                            - a12 * (sums.xy * a33 - a23 * sums.y)
+                            + a13 * (sums.xy * a32 - a22 * sums.y);
+                
+                // For b (x coefficient)
+                const detBQuad = a11 * (sums.xy * a33 - a23 * sums.y)
+                            - sums.yx2 * (a21 * a33 - a23 * a31)
+                            + a13 * (a21 * sums.y - sums.xy * a31);
+                
+                // For c (constant)
+                const detCQuad = a11 * (a22 * sums.y - sums.xy * a32)
+                            - a12 * (a21 * sums.y - sums.xy * a31)
+                            + sums.yx2 * (a21 * a32 - a22 * a31);
+                
+                quadraticA = detAQuad / detQuad;
+                quadraticB = detBQuad / detQuad;
+                quadraticC = detCQuad / detQuad;
+                
+                // Update quadratic equation display
+                quadraticEquationDisplay.innerHTML = `
+                    Quadratic System: f₂(x) = a₂x² + b₂x + c₂
+                    <br><br>
+                    \\[\\begin{cases}
+                    ${sums.x4.toFixed(6)}a_2 + ${sums.x3.toFixed(6)}b_2 + ${sums.x2.toFixed(6)}c_2 = ${sums.yx2.toFixed(6)} \\\\
+                    ${sums.x3.toFixed(6)}a_2 + ${sums.x2.toFixed(6)}b_2 + ${sums.x.toFixed(6)}c_2 = ${sums.xy.toFixed(6)} \\\\
+                    ${sums.x2.toFixed(6)}a_2 + ${sums.x.toFixed(6)}b_2 + ${n}c_2 = ${sums.y.toFixed(6)}
+                    \\end{cases}\\]
+                `;
+                
+                // Display quadratic function
+                quadraticFunctionDisplay.innerHTML = `f₂(x) = ${quadraticA.toFixed(6)}x² ${quadraticB >= 0 ? '+' : ''}${quadraticB.toFixed(6)}x ${quadraticC >= 0 ? '+' : ''}${quadraticC.toFixed(6)}`;
+                
+                // Display quadratic coefficients
+                quadraticCoefficients.innerHTML = `
+                    <div class="coef-item">
+                        <span class="coef-label">a₂ (x² coefficient):</span>
+                        <span class="coef-value">${quadraticA.toFixed(6)}</span>
+                    </div>
+                    <div class="coef-item">
+                        <span class="coef-label">b₂ (x coefficient):</span>
+                        <span class="coef-value">${quadraticB.toFixed(6)}</span>
+                    </div>
+                    <div class="coef-item">
+                        <span class="coef-label">c₂ (constant):</span>
+                        <span class="coef-value">${quadraticC.toFixed(6)}</span>
+                    </div>
+                    <div class="coef-item">
+                        <span class="coef-label">Determinant:</span>
+                        <span class="coef-value">${detQuad.toExponential(4)}</span>
+                    </div>
+                `;
+                
+                // Calculate f1(x), f2(x) and errors for each row
+                linearError = 0;
+                quadraticError = 0;
+                
+                for (let i = 0; i < n; i++) {
+                    const x = dataPoints[i].x;
+                    const y = dataPoints[i].y;
+                    
+                    // Calculate f1(x) and error
+                    const f1 = linearA * x + linearB;
+                    const error1 = Math.pow(y - f1, 2);
+                    linearError += error1;
+                    
+                    // Calculate f2(x) and error
+                    const f2 = quadraticA * x * x + quadraticB * x + quadraticC;
+                    const error2 = Math.pow(y - f2, 2);
+                    quadraticError += error2;
+                    
+                    // Update row cells
+                    document.getElementById(`f1-${i}`).textContent = f1.toFixed(6);
+                    document.getElementById(`error1-${i}`).textContent = error1.toFixed(6);
+                    document.getElementById(`f2-${i}`).textContent = f2.toFixed(6);
+                    document.getElementById(`error2-${i}`).textContent = error2.toFixed(6);
+                }
+                
+                // Update error sums
+                document.getElementById('sum-error1').textContent = linearError.toFixed(6);
+                document.getElementById('sum-error2').textContent = quadraticError.toFixed(6);
+                
+                // Update error displays
+                linearErrorDisplay.textContent = `S₁ = ${linearError.toFixed(6)}`;
+                quadraticErrorDisplay.textContent = `S₂ = ${quadraticError.toFixed(6)}`;
+                
+                // Render MathJax
+                if (window.MathJax) {
+                    MathJax.typesetPromise([linearEquationDisplay, quadraticEquationDisplay]);
+                }
+                
+                // Create or update the graph
+                createGraph();
+            }
+            
+            function createGraph() {
+                const ctx = graphCanvas.getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (myChart) {
+                    myChart.destroy();
+                }
+                
+                // Prepare data points
+                const scatterData = dataPoints.map(point => ({
+                    x: point.x,
+                    y: point.y
+                }));
+                
+                // Determine x range for function plotting
+                const xValues = dataPoints.map(p => p.x);
+                const minX = Math.min(...xValues);
+                const maxX = Math.max(...xValues);
+                const range = maxX - minX;
+                const padding = range * 0.2;
+                
+                // Generate function data points
+                const step = (maxX - minX + 2 * padding) / 100;
+                const functionDataLinear = [];
+                const functionDataQuadratic = [];
+                
+                for (let x = minX - padding; x <= maxX + padding; x += step) {
+                    functionDataLinear.push({
+                        x: x,
+                        y: linearA * x + linearB
+                    });
+                    
+                    functionDataQuadratic.push({
+                        x: x,
+                        y: quadraticA * x * x + quadraticB * x + quadraticC
+                    });
+                }
+                
+                // Create chart
+                myChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [
+                            {
+                                label: `Data Points (N=${dataPoints.length})`,
+                                data: scatterData,
+                                backgroundColor: '#1e3c72',
+                                borderColor: '#1e3c72',
+                                borderWidth: 2,
+                                pointRadius: 6,
+                                pointHoverRadius: 10
+                            },
+                            {
+                                label: `Linear Fit f₁(x) = ${linearA.toFixed(3)}x ${linearB >= 0 ? '+' : ''}${linearB.toFixed(3)} (S₁=${linearError.toFixed(3)})`,
+                                data: functionDataLinear,
+                                backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                                borderColor: '#ff6b6b',
+                                borderWidth: 3,
+                                pointRadius: 0,
+                                fill: false,
+                                showLine: true,
+                                tension: 0,
+                                hidden: !showLinear
+                            },
+                            {
+                                label: `Quadratic Fit f₂(x) = ${quadraticA.toFixed(3)}x² ${quadraticB >= 0 ? '+' : ''}${quadraticB.toFixed(3)}x ${quadraticC >= 0 ? '+' : ''}${quadraticC.toFixed(3)} (S₂=${quadraticError.toFixed(3)})`,
+                                data: functionDataQuadratic,
+                                backgroundColor: 'rgba(255, 209, 102, 0.1)',
+                                borderColor: '#ffd166',
+                                borderWidth: 3,
+                                pointRadius: 0,
+                                fill: false,
+                                showLine: true,
+                                tension: 0.4,
+                                hidden: !showQuadratic
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: '#333333',
+                                    font: {
+                                        size: 14
+                                    },
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#1e3c72',
+                                bodyColor: '#ffffff',
+                                borderColor: '#1e3c72',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label.includes('Data Points')) {
+                                            const point = scatterData[context.dataIndex];
+                                            return `(${point.x.toFixed(3)}, ${point.y.toFixed(3)})`;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: {
+                                    display: true,
+                                    text: 'x',
+                                    color: '#1e3c72',
+                                    font: {
+                                        size: 16,
+                                        weight: 'bold'
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)',
+                                    lineWidth: 1
+                                },
+                                ticks: {
+                                    color: '#333333'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'y',
+                                    color: '#1e3c72',
+                                    font: {
+                                        size: 16,
+                                        weight: 'bold'
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)',
+                                    lineWidth: 1
+                                },
+                                ticks: {
+                                    color: '#333333'
+                                }
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        }
+                    }
+                });
+            }
+            
+            function updateGraph() {
+                if (!myChart) return;
+                
+                myChart.data.datasets[1].hidden = !showLinear;
+                myChart.data.datasets[2].hidden = !showQuadratic;
+                myChart.update();
+            }
+            
+            function resetGraphZoom() {
+                if (myChart) {
+                    myChart.resetZoom();
+                }
+            }
+            
+            function clearCalculations() {
+                linearFunctionDisplay.textContent = 'f₁(x) = a₁x + b₁';
+                quadraticFunctionDisplay.textContent = 'f₂(x) = a₂x² + b₂x + c₂';
+                linearCoefficients.innerHTML = '';
+                quadraticCoefficients.innerHTML = '';
+                linearErrorDisplay.textContent = 'S₁ = 0.000000';
+                quadraticErrorDisplay.textContent = 'S₂ = 0.000000';
+                errorMessage.style.display = 'none';
+                
+                // Clear graph
+                if (myChart) {
+                    myChart.destroy();
+                    myChart = null;
+                }
+                
+                // Reset equation displays
+                linearEquationDisplay.innerHTML = `
+                    Linear System: f₁(x) = a₁x + b₁
+                    <br><br>
+                    \\[\\begin{cases}
+                    \\sum x^2 \\cdot a_1 + \\sum x \\cdot b_1 = \\sum xy \\\\
+                    \\sum x \\cdot a_1 + N \\cdot b_1 = \\sum y
+                    \\end{cases}\\]
+                `;
+                
+                quadraticEquationDisplay.innerHTML = `
+                    Quadratic System: f₂(x) = a₂x² + b₂x + c₂
+                    <br><br>
+                    \\[\\begin{cases}
+                    \\sum x^4 \\cdot a_2 + \\sum x^3 \\cdot b_2 + \\sum x^2 \\cdot c_2 = \\sum x^2y \\\\
+                    \\sum x^3 \\cdot a_2 + \\sum x^2 \\cdot b_2 + \\sum x \\cdot c_2 = \\sum xy \\\\
+                    \\sum x^2 \\cdot a_2 + \\sum x \\cdot b_2 + N \\cdot c_2 = \\sum y
+                    \\end{cases}\\]
+                `;
+                
+                if (window.MathJax) {
+                    MathJax.typesetPromise([linearEquationDisplay, quadraticEquationDisplay]);
+                }
+            }
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                
+                // Scroll to error message
+                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    </script>
+</body>
+</html>
